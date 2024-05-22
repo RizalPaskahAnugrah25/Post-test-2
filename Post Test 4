@@ -1,0 +1,274 @@
+from prettytable import PrettyTable
+
+class Node:
+    def __init__(self, nama, berat, harga, stok):
+        self.nama = nama
+        self.berat = berat
+        self.harga = harga
+        self.stok = stok
+        self.next = None
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def tambah_pakaian_awal(self, nama, berat, harga, stok):
+        new_node = Node(nama, berat, harga, stok)
+        new_node.next = self.head
+        self.head = new_node
+        print(f"Pakaian {nama} berhasil ditambahkan di awal.")
+
+    def tambah_pakaian_akhir(self, nama, berat, harga, stok):
+        new_node = Node(nama, berat, harga, stok)
+        if self.head is None:
+            self.head = new_node
+            print(f"Pakaian {nama} berhasil ditambahkan di akhir.")
+            return
+        last = self.head
+        while last.next:
+            last = last.next
+        last.next = new_node
+        print(f"Pakaian {nama} berhasil ditambahkan di akhir.")
+
+    def tambah_pakaian_tengah(self, nama, berat, harga, stok, posisi):
+        if posisi == 0:
+            self.tambah_pakaian_awal(nama, berat, harga, stok)
+            return
+        new_node = Node(nama, berat, harga, stok)
+        current = self.head
+        prev = None
+        for _ in range(posisi):
+            if current is None:
+                break
+            prev = current
+            current = current.next
+        new_node.next = current
+        if prev:
+            prev.next = new_node
+        print(f"Pakaian {nama} berhasil ditambahkan di posisi {posisi}.")
+
+    def hapus_pakaian_awal(self):
+        if self.head is None:
+            print("Daftar pakaian kosong.")
+            return
+        print(f"Pakaian {self.head.nama} berhasil dihapus dari awal.")
+        self.head = self.head.next
+
+    def hapus_pakaian_akhir(self):
+        if self.head is None:
+            print("Daftar pakaian kosong.")
+            return
+        if self.head.next is None:
+            print(f"Pakaian {self.head.nama} berhasil dihapus dari akhir.")
+            self.head = None
+            return
+        second_last = self.head
+        while second_last.next.next:
+            second_last = second_last.next
+        print(f"Pakaian {second_last.next.nama} berhasil dihapus dari akhir.")
+        second_last.next = None
+
+    def hapus_pakaian_tengah(self, posisi):
+        if self.head is None:
+            print("Daftar pakaian kosong.")
+            return
+        if posisi == 0:
+            self.hapus_pakaian_awal()
+            return
+        current = self.head
+        prev = None
+        for _ in range(posisi):
+            if current is None:
+                print(f"Posisi {posisi} melebihi jumlah node.")
+                return
+            prev = current
+            current = current.next
+        if prev and current:
+            print(f"Pakaian {current.nama} berhasil dihapus dari posisi {posisi}.")
+            prev.next = current.next
+
+    def ubah_pakaian(self, nama, field, nilai_baru):
+        current = self.head
+        while current:
+            if current.nama == nama:
+                if field == "berat":
+                    current.berat = nilai_baru
+                elif field == "harga":
+                    current.harga = nilai_baru
+                elif field == "stok":
+                    current.stok = nilai_baru
+                else:
+                    print(f"Field {field} tidak valid.")
+                    return
+                print(f"{field} pada pakaian {nama} berhasil diubah.")
+                return
+            current = current.next
+        print(f"Pakaian {nama} tidak ditemukan.")
+
+    def tampilkan_pakaian(self):
+        table = PrettyTable()
+        table.field_names = ["Nama", "Berat", "Harga", "Stok"]
+        current = self.head
+        while current:
+            table.add_row([current.nama, current.berat, current.harga, current.stok])
+            current = current.next
+        print(table)
+
+    def jump_search(self, key, search_attr):
+        length = 0
+        current = self.head
+        while current:
+            length += 1
+            current = current.next
+        
+        # Menghitung ukuran blok
+        block_size = int(length ** 0.5)
+        prev = None
+        current = self.head
+
+        # Melompati blok-blok hingga menemukan blok yang berisi kunci
+        while current and getattr(current, search_attr) < key:
+            prev = current
+            for _ in range(block_size):
+                if current.next:
+                    current = current.next
+                else:
+                    break
+
+        # Melakukan linear search di dalam blok yang sesuai
+        while prev and getattr(prev, search_attr) < key:
+            prev = prev.next
+        
+        if prev and getattr(prev, search_attr) == key:
+            return prev
+        else:
+            return None
+
+class TokoPakaian:
+    def __init__(self):
+        self.pakaian = LinkedList()
+        # Menambahkan pakaian awal ke linked list
+        self.pakaian.tambah_pakaian_akhir('Hoodie Hitam', '330gsm', 300000, 10)
+        self.pakaian.tambah_pakaian_akhir('Kaos Putih', 'polos', 80000, 20)
+        self.pakaian.tambah_pakaian_akhir('Kemeja Hitam', 'polos', 120000, 15)
+        self.pakaian.tambah_pakaian_akhir('Celana Denim Jeans', 'Jeans', 200000, 12)
+        self.pakaian.tambah_pakaian_akhir('Crewneck', 'standar', 150000, 18)
+
+    def menu(self):
+        while True:
+            print("\n=== Menu Toko Pakaian ===")
+            print("1. Tampilkan daftar pakaian")
+            print("2. Tambah pakaian di awal")
+            print("3. Tambah pakaian di akhir")
+            print("4. Tambah pakaian di posisi tertentu")
+            print("5. Ubah pakaian")
+            print("6. Hapus pakaian di awal")
+            print("7. Hapus pakaian di akhir")
+            print("8. Hapus pakaian di posisi tertentu")
+            print("9. Searching")
+            print("10. Sorting")
+            print("11. Keluar")
+            pilihan = input("Pilih tindakan (1-11): ")
+
+            if pilihan == '1':
+                self.pakaian.tampilkan_pakaian()
+            elif pilihan == '2':
+                nama = input("Nama pakaian: ")
+                berat = input("Berat pakaian: ")
+                harga = int(input("Harga pakaian: "))
+                stok = int(input("Stok pakaian: "))
+                self.pakaian.tambah_pakaian_awal(nama, berat, harga, stok)
+            elif pilihan == '3':
+                nama = input("Nama pakaian: ")
+                berat = input("Berat pakaian: ")
+                harga = int(input("Harga pakaian: "))
+                stok = int(input("Stok pakaian: "))
+                self.pakaian.tambah_pakaian_akhir(nama, berat, harga, stok)
+            elif pilihan == '4':
+                nama = input("Nama pakaian: ")
+                berat = input("Berat pakaian: ")
+                harga = int(input("Harga pakaian: "))
+                stok = int(input("Stok pakaian: "))
+                posisi = int(input("Posisi untuk menambahkan pakaian: "))
+                self.pakaian.tambah_pakaian_tengah(nama, berat, harga, stok, posisi)
+            elif pilihan == '5':
+                nama = input("Nama pakaian yang ingin diubah: ")
+                field = input("Field yang ingin diubah (berat/harga/stok): ")
+                nilai_baru = input("Nilai baru: ")
+                if field == "harga" or field == "stok":
+                    nilai_baru = int(nilai_baru)
+                self.pakaian.ubah_pakaian(nama, field, nilai_baru)
+            elif pilihan == '6':
+                self.pakaian.hapus_pakaian_awal()
+            elif pilihan == '7':
+                self.pakaian.hapus_pakaian_akhir()
+            elif pilihan == '8':
+                posisi = int(input("Posisi untuk menghapus pakaian: "))
+                self.pakaian.hapus_pakaian_tengah(posisi)
+            elif pilihan == '9':
+                self.search_menu()
+            elif pilihan == '10':
+                self.sort_menu()
+            elif pilihan == '11':
+                print("Terima kasih telah menggunakan program ini.")
+                break
+            else:
+                print("Pilihan tidak valid. Silakan coba lagi.")
+
+    def search_menu(self):
+        print("\n=== Menu Searching ===")
+        print("1. Cari pakaian berdasarkan nama")
+        print("2. Cari pakaian berdasarkan harga")
+        print("3. Kembali")
+        pilihan = input("Pilih tindakan (1-3): ")
+
+        if pilihan == '1':
+            nama = input("Masukkan nama pakaian yang ingin dicari: ")
+            result = self.pakaian.jump_search(nama, "nama")
+            if result:
+                print("Pakaian ditemukan!")
+                print(f"Nama: {result.nama}, Berat: {result.berat}, Harga: {result.harga}, Stok: {result.stok}")
+            else:
+                print("Pakaian tidak ditemukan.")
+        elif pilihan == '2':
+            harga = int(input("Masukkan harga pakaian yang ingin dicari: "))
+            result = self.pakaian.jump_search(harga, "harga")
+            if result:
+                print("Pakaian ditemukan!")
+                print(f"Nama: {result.nama}, Berat: {result.berat}, Harga: {result.harga}, Stok: {result.stok}")
+            else:
+                print("Pakaian tidak ditemukan.")
+        elif pilihan == '3':
+            pass
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+
+    def sort_menu(self):
+        print("\n=== Menu Sorting ===")
+        print("1. Sortir berdasarkan nama (Ascending)")
+        print("2. Sortir berdasarkan nama (Descending)")
+        print("3. Sortir berdasarkan harga (Ascending)")
+        print("4. Sortir berdasarkan harga (Descending)")
+        print("5. Kembali")
+        pilihan = input("Pilih tindakan (1-5): ")
+
+        if pilihan == '1':
+            self.pakaian.sort_pakaian("nama")
+            self.pakaian.tampilkan_pakaian()
+        elif pilihan == '2':
+            self.pakaian.sort_pakaian("nama", reverse=True)
+            self.pakaian.tampilkan_pakaian()
+        elif pilihan == '3':
+            self.pakaian.sort_pakaian("harga")
+            self.pakaian.tampilkan_pakaian()
+        elif pilihan == '4':
+            self.pakaian.sort_pakaian("harga", reverse=True)
+            self.pakaian.tampilkan_pakaian()
+        elif pilihan == '5':
+            pass
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+
+# Main program
+toko_pakaian = TokoPakaian()
+toko_pakaian.menu()
